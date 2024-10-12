@@ -80,7 +80,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         .annotate(
             tickets_available=F("cinema_hall__rows")
             * F("cinema_hall__seats_in_row")
-            - Count("tickets") -1
+            - Count("tickets") - 1
         )
     )
     serializer_class = MovieSessionSerializer
