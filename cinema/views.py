@@ -15,7 +15,9 @@ from cinema.serializers import (
     MovieSessionListSerializer,
     MovieDetailSerializer,
     MovieSessionDetailSerializer,
-    MovieListSerializer, OrderSerializer, OrderListSerializer,
+    MovieListSerializer,
+    OrderSerializer,
+    OrderListSerializer,
 )
 
 
@@ -52,7 +54,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         return [int(num) for num in query.split(",")]
 
     def get_queryset(self):
-        query_set = self.queryset
+        query_set = self.queryset.prefetch_related("actors", "genres")
         title = self.request.query_params.get("title")
         genres = self.request.query_params.get("genres")
         actors = self.request.query_params.get("actors")
@@ -93,15 +95,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         return MovieSessionSerializer
 
     def get_queryset(self):
-        query_set = (
-            MovieSession.objects.all()
-            .select_related("movie", "cinema_hall")
-            .annotate(
-                tickets_available=F("cinema_hall__rows")
-                * F("cinema_hall__seats_in_row")
-                - Count("tickets")
-            )
-        )
+        query_set = self.queryset
         movie = self.request.query_params.get("movie")
         date = self.request.query_params.get("date")
         if movie:
@@ -122,7 +116,7 @@ class OrderPagination(PageNumberPagination):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.select_related("user")
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
 

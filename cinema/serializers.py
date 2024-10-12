@@ -47,7 +47,6 @@ class MovieListSerializer(MovieSerializer):
 
     class Meta:
         model = Movie
-        fields = MovieSerializer.Meta.fields + ("genres", "actors")
 
 
 class MovieDetailSerializer(MovieSerializer):
